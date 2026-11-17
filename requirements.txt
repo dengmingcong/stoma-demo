@@ -1,6 +1,4 @@
-# pip 备选路径的依赖声明。
-#
-# 主路径是 uv（见 pyproject.toml 与 Makefile）；本文件供不具备 uv 的使用者使用：
+# 依赖声明。
 #
 #     python -m venv .venv
 #     source .venv/bin/activate
