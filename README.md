@@ -1,14 +1,69 @@
 # stoma-demo
 
-[Stoma](https://github.com/dengmingcong/stoma) 的可运行示例 —— 用「代码即协议」的方式
-定义接口、调用接口、对响应断言。
+以 Swagger 官方示例 [Petstore](https://petstore3.swagger.io/api/v3/openapi.json) 为例，说明如何使用 [Stoma](https://github.com/dengmingcong/stoma)。
 
 ## 运行示例
 
-`spec.json` 为 [Swagger 官方 Petstore](https://petstore3.swagger.io/api/v3/openapi.json)
-的规范文件。`app/` 是依据该规范生成的接口定义，`tests/` 是针对这些接口定义编写的测试。
-
 需要 Python 3.12 或更高版本。
+
+### 1. 下载接口协议
+
+下载 Petstore 的 OpenAPI 规范文件：
+
+```bash
+curl -sL https://petstore3.swagger.io/api/v3/openapi.json -o spec.json
+```
+
+也可以直接使用本仓库中的 `spec.json`，两者内容相同。
+
+### 2. 生成接口代码
+
+由规范文件生成接口定义：
+
+```bash
+uv run stoma spec.json --out app --prefix /api/v3
+```
+
+生成结果为 `app/models.py`、`app/router.py` 与 `app/endpoints/` 下的端点代码。
+其中 `GetUserByName` 声明了路径参数与响应协议：
+
+```python
+@router.get("/user/{username}")
+class GetUserByName(APIRoute):
+    username: str
+
+    @property
+    def on_200_application_json(self) -> ResponseSpec[User]:
+        return ResponseSpec(
+            status_code=200,
+            media_type="application/json",
+            expected_type=User,
+        )
+```
+
+### 3. 调用接口
+
+导入生成的端点，发送请求并对响应断言：
+
+```python
+from playwright.sync_api import sync_playwright
+from stoma import Client
+from app.endpoints.get_user_by_name import GetUserByName
+
+with sync_playwright() as p:
+    ctx = p.request.new_context(base_url="https://petstore3.swagger.io")
+    client = Client(context=ctx)
+
+    endpoint = GetUserByName(username="user1")
+    response = client.send(endpoint)
+    user = response.expect(endpoint.on_200_application_json)
+    assert user.username == "user1"
+```
+
+`expect()` 先校验状态码与媒体类型，再将响应体转换为 `User`。响应中的 `firstName`
+按模型声明的别名映射到 `first_name`。
+
+本仓库的 `tests/` 是针对生成代码编写的测试，可直接运行：
 
 ```bash
 git clone https://github.com/dengmingcong/stoma-demo.git
@@ -43,22 +98,6 @@ pytest
 | `POST /pet` | 请求体 |
 | `POST /pet/{petId}` | 路径参数与查询参数组合 |
 | `POST /store/order` | 请求体与类型化响应 |
-
-```python
-def test_get_user_by_name(client: Client) -> None:
-    endpoint = GetUserByName(username="user1")
-
-    response = client.send(endpoint)
-
-    user = response.expect(endpoint.on_200_application_json)
-    assert isinstance(user, User)
-    assert user.username == "user1"
-    assert user.id is not None
-    assert user.first_name == "first name 1"
-```
-
-`expect()` 先校验状态码与媒体类型，再将响应体转换为 `User`。响应中的 `firstName`
-按模型声明的别名映射到 `first_name`。
 
 ## 反馈
 
