@@ -1,0 +1,17 @@
+# pip 备选路径的依赖声明。
+#
+# 主路径是 uv（见 pyproject.toml 与 Makefile）；本文件供不具备 uv 的使用者使用：
+#
+#     python -m venv .venv
+#     source .venv/bin/activate
+#     pip install -r requirements.txt
+#     pytest
+#
+# 版本约束与 pyproject.toml 保持一致：跟随 Stoma 的已发布版本，
+# 并以 <0.4.0 上界隔离主版本的破坏性变更。
+#
+# 注意：演示后端是 Swagger 官方 Petstore 公共服务（https://petstore3.swagger.io），
+# 因此运行测试需要联网。该服务是人人共享的公开演示服务，可用性不保证，
+# 可能返回 HTTP 500 —— 这是服务状态问题，与 stoma 无关。
+stoma>=0.3.0,<0.4.0
+pytest>=8.4.2
