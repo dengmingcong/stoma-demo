@@ -1,12 +1,40 @@
 # stoma-demo
 
-以 Swagger 官方示例 [Petstore](https://petstore3.swagger.io/api/v3/openapi.json) 为例，说明如何使用 [Stoma](https://github.com/dengmingcong/stoma)。
+以 Swagger 官方示例 [Petstore](https://petstore3.swagger.io) 为例，说明如何使用 [Stoma](https://github.com/dengmingcong/stoma)。
 
 ## 运行示例
 
+### 准备环境
+
 需要 Python 3.12 或更高版本。
 
-### 1. 下载接口协议
+克隆本仓库并创建虚拟环境：
+
+```bash
+git clone https://github.com/dengmingcong/stoma-demo.git
+cd stoma-demo
+```
+
+使用 uv 安装依赖：
+
+```bash
+uv sync
+```
+
+或者使用 pip：
+
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+> Stoma 使用 Playwright 的 `APIRequestContext` 发送请求，不需要下载浏览器。
+
+### 开始
+
+以下三个步骤演示如何从接口协议得到可调用的接口。
+
+#### 1. 下载接口协议
 
 下载 Petstore 的 OpenAPI 规范文件：
 
@@ -14,9 +42,9 @@
 curl -sL https://petstore3.swagger.io/api/v3/openapi.json -o spec.json
 ```
 
-也可以直接使用本仓库中的 `spec.json`，两者内容相同。
+本仓库中的 `spec.json` 与该文件内容相同。
 
-### 2. 生成接口代码
+#### 2. 生成接口代码
 
 由规范文件生成接口定义：
 
@@ -41,7 +69,7 @@ class GetUserByName(APIRoute):
         )
 ```
 
-### 3. 调用接口
+#### 3. 调用接口
 
 导入生成的端点，发送请求并对响应断言：
 
@@ -63,29 +91,20 @@ with sync_playwright() as p:
 `expect()` 先校验状态码与媒体类型，再将响应体转换为 `User`。响应中的 `firstName`
 按模型声明的别名映射到 `first_name`。
 
-本仓库的 `tests/` 是针对生成代码编写的测试，可直接运行：
+演示后端为 Swagger 官方 Petstore 公共服务，由多方共用，可用性不作保证，
+可能返回 HTTP 500。
+
+### 运行本仓库的测试
 
 ```bash
-git clone https://github.com/dengmingcong/stoma-demo.git
-cd stoma-demo
-uv sync
 uv run pytest -v
 ```
 
 或者使用 pip：
 
 ```bash
-git clone https://github.com/dengmingcong/stoma-demo.git
-cd stoma-demo
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
 pytest
 ```
-
-> Stoma 使用 Playwright 的 `APIRequestContext` 发送请求，不需要下载浏览器。
-
-演示后端为 Swagger 官方 Petstore 公共服务，由多方共用，可用性不作保证，
-可能返回 HTTP 500。
 
 ## 说明
 
