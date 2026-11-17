@@ -3,7 +3,10 @@
 [Stoma](https://github.com/dengmingcong/stoma) 的可运行示例 —— 用「代码即协议」的方式
 定义接口、调用接口、对响应断言。
 
-## 运行
+## 运行示例
+
+`spec.json` 为 [Swagger 官方 Petstore](https://petstore3.swagger.io/api/v3/openapi.json)
+的规范文件。`app/` 是依据该规范生成的接口定义，`tests/` 是针对这些接口定义编写的测试。
 
 需要 Python 3.12 或更高版本。
 
@@ -26,10 +29,10 @@ pytest
 
 > Stoma 使用 Playwright 的 `APIRequestContext` 发送请求，不需要下载浏览器。
 
-## 示例内容
+演示后端为 Swagger 官方 Petstore 公共服务，由多方共用，可用性不作保证，
+可能返回 HTTP 500。
 
-`spec.json` 为 [Swagger 官方 Petstore](https://petstore3.swagger.io/api/v3/openapi.json)
-的规范文件。`app/` 是依据该规范生成的接口定义，`tests/` 是针对这些接口定义编写的测试。
+## 说明
 
 | 端点 | 说明 |
 |------|------|
@@ -56,11 +59,6 @@ def test_get_user_by_name(client: Client) -> None:
 
 `expect()` 先校验状态码与媒体类型，再将响应体转换为 `User`。响应中的 `firstName`
 按模型声明的别名映射到 `first_name`。
-
-## 演示后端
-
-演示后端为 Swagger 官方 Petstore 公共服务（`https://petstore3.swagger.io`），
-由多方共用，可用性不作保证，可能返回 HTTP 500。
 
 ## 反馈
 
